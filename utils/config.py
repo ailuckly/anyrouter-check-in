@@ -18,7 +18,7 @@ class ProviderConfig:
 	login_path: str = '/login'
 	sign_in_path: str | None = '/api/user/sign_in'
 	user_info_path: str = '/api/user/self'
-	api_user_key: str = 'new-api-user'
+	api_user_key: str = 'New-Api-User'  # 使用标准的首字母大写格式
 	bypass_method: Literal['waf_cookies'] | None = None
 
 	@classmethod
@@ -35,7 +35,7 @@ class ProviderConfig:
 			login_path=data.get('login_path', '/login'),
 			sign_in_path=data.get('sign_in_path', '/api/user/sign_in'),
 			user_info_path=data.get('user_info_path', '/api/user/self'),
-			api_user_key=data.get('api_user_key', 'new-api-user'),
+			api_user_key=data.get('api_user_key', 'New-Api-User'),  # 使用标准的首字母大写格式
 			bypass_method=data.get('bypass_method'),
 		)
 
@@ -64,7 +64,7 @@ class AppConfig:
 				login_path='/login',
 				sign_in_path='/api/user/sign_in',
 				user_info_path='/api/user/self',
-				api_user_key='new-api-user',
+				api_user_key='New-Api-User',  # 使用标准的首字母大写格式
 				bypass_method='waf_cookies',
 			),
 			'agentrouter': ProviderConfig(
@@ -73,7 +73,7 @@ class AppConfig:
 				login_path='/login',
 				sign_in_path=None,  # 无需签到接口，查询用户信息时自动完成签到
 				user_info_path='/api/user/self',
-				api_user_key='new-api-user',
+				api_user_key='New-Api-User',  # 使用标准的首字母大写格式
 				bypass_method=None,
 			),
 		}
