@@ -136,19 +136,26 @@ def get_user_info(client, headers, user_info_url: str):
 		response = client.get(user_info_url, headers=headers, timeout=30)
 
 		if response.status_code == 200:
-			data = response.json()
-			if data.get('success'):
-				user_data = data.get('data', {})
-				quota = round(user_data.get('quota', 0) / 500000, 2)
-				used_quota = round(user_data.get('used_quota', 0) / 500000, 2)
-				return {
-					'success': True,
-					'quota': quota,
-					'used_quota': used_quota,
-					'display': f':money: Current balance: ${quota}, Used: ${used_quota}',
-				}
+			try:
+				data = response.json()
+				if data.get('success'):
+					user_data = data.get('data', {})
+					quota = round(user_data.get('quota', 0) / 500000, 2)
+					used_quota = round(user_data.get('used_quota', 0) / 500000, 2)
+					return {
+						'success': True,
+						'quota': quota,
+						'used_quota': used_quota,
+						'display': f':money: Current balance: ${quota}, Used: ${used_quota}',
+					}
+			except ValueError as json_err:
+				print(f'[ERROR] JSON parse failed. Response text: {response.text[:200]}')
+				return {'success': False, 'error': f'Invalid JSON response: {str(json_err)[:30]}'}
+		
+		print(f'[ERROR] HTTP {response.status_code}. Response: {response.text[:200]}')
 		return {'success': False, 'error': f'Failed to get user info: HTTP {response.status_code}'}
 	except Exception as e:
+		print(f'[ERROR] Request failed: {type(e).__name__}: {str(e)}')
 		return {'success': False, 'error': f'Failed to get user info: {str(e)[:50]}...'}
 
 
@@ -228,6 +235,10 @@ async def check_in_account(account: AccountConfig, account_index: int, app_confi
 
 	try:
 		client.cookies.update(all_cookies)
+		
+		# 调试: 打印 cookies 信息(脱敏)
+		cookie_names = list(all_cookies.keys())
+		print(f'[DEBUG] {account_name}: Using cookies: {cookie_names}')
 
 		headers = {
 			'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
@@ -244,6 +255,7 @@ async def check_in_account(account: AccountConfig, account_index: int, app_confi
 		}
 
 		user_info_url = f'{provider_config.domain}{provider_config.user_info_path}'
+		print(f'[DEBUG] {account_name}: Requesting {user_info_url}')
 		user_info = get_user_info(client, headers, user_info_url)
 		if user_info and user_info.get('success'):
 			print(user_info['display'])
